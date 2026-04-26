@@ -1,0 +1,9 @@
+.venv/
+*.pem
+*.csv
+*.env
+*.envrc
+__pycache__/
+go.sum
+
+
