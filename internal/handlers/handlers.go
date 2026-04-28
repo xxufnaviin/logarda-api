@@ -1,7 +1,13 @@
-package main
+package handlers
+
+import (
+	"net/http"
+	"fmt"
+)
 
 
-// for http handling, need two parameters for each handler functions
-// type Handler interface {
-//     ServeHTTP(http.ResponseWriter, *http.Request)
-// } 
+func HealthCheck(w http.ResponseWriter, r *http.Request){
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("ok"))
+	fmt.Print("ok")
+}

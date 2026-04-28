@@ -1,11 +1,20 @@
 package main
 
-import "fmt"
-// import "net/http"
+import (
+	"fmt"
+	"net/http"
+	"logarda/internal/handlers"
+)
+
 
 func main() {
 	fmt.Println("hello")
+	http.HandleFunc("/health", handlers.HealthCheck)
+	http.ListenAndServe(":8080", nil)
+	
 }
+
+
 // must contain concurrency handling
 
 
