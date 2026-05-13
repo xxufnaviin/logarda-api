@@ -1,18 +1,23 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"logarda/internal/db"
 	"logarda/internal/handlers"
+	"net/http"
 )
 
 
 func main() {
-	fmt.Println("hello")
+	handlers.Init()
+	defer db.DB.Close() // calls before function closes
+	
 	http.HandleFunc("/health", handlers.HealthCheck)
+	http.HandleFunc("/login", handlers.Login)
+
 	http.ListenAndServe(":8080", nil)
 	
 }
+
 
 
 // must contain concurrency handling

@@ -1,13 +1,27 @@
 package handlers
 
 import (
+	"encoding/json"
+	"logarda/internal/config"
+	"logarda/internal/db"
 	"net/http"
-	"fmt"
 )
 
+func Init(){
+	// load secrets
+	config.LoadSecrets()
+	// create postgresql connection pool
+	db.CreatePostgreSQLPool()
+}
 
 func HealthCheck(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("ok"))
-	fmt.Print("ok")
+	
+	json.NewEncoder(w).Encode(map[string]any{
+		"message":"ok",
+		"status": http.StatusOK,
+	})
+
 }
+
