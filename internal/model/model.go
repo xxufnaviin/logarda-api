@@ -2,11 +2,21 @@ package model
 
 // define structs here
 
-type User struct {
-	Username string
-	Password string
+type User struct { // database schema
+	Username        string
+	Password        string
+	AccessKeyID     string
+	AccessKeySecret string
+	Region          string
+	CollectorOn     bool
 }
-type RequestLogin struct {
+type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+type AWSCredentialsRequest struct {
+	Username        string `json:"username"`
+	AccessKeyID     string `json:"accessKeyID"`
+	AccessKeySecret string `json:"accessKeySecret"`
+	Region          string `json:"region"`
 }

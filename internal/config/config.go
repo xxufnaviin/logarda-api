@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+
 	"github.com/joho/godotenv"
 )
 
@@ -15,7 +16,7 @@ var POSTGRES_URL string
 var REDIS_HOST string
 var REDIS_PORT string
 
-func LoadSecrets(){
+func LoadSecrets() {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading .env file")
@@ -30,8 +31,8 @@ func LoadSecrets(){
 	REDIS_PORT = os.Getenv("REDIS_PORT")
 
 	POSTGRES_URL = fmt.Sprintf("postgres://%s:%s@%s:5432/%s",
-        POSTGRES_USER,
-        POSTGRES_PASSWORD,
-        POSTGRES_HOST,
-        POSTGRES_DATABASE)
+		POSTGRES_USER,
+		POSTGRES_PASSWORD,
+		POSTGRES_HOST,
+		POSTGRES_DATABASE)
 }

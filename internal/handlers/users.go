@@ -1,19 +1,18 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"logarda/internal/db"
 	"logarda/internal/model"
 	"logarda/utils"
 	"net/http"
-
-	// "context"
 )
 
-func Login(w http.ResponseWriter, r *http.Request){
+func Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var request model.RequestLogin
+	var request model.LoginRequest
 	var user model.User
 	var hashedPassword string
 
@@ -26,31 +25,68 @@ func Login(w http.ResponseWriter, r *http.Request){
 
 	hashedPassword = utils.HashString(request.Password) // hash password before comparison
 
-	err = db.DB.QueryRow(ctx,"SELECT username, password FROM users WHERE username=$1 AND password=$2;", 
-						request.Username, hashedPassword).Scan(&user.Username, &user.Password)					
+	err = db.DB.QueryRow(ctx, "SELECT username, password FROM users WHERE username=$1 AND password=$2;",
+		request.Username, hashedPassword).Scan(&user.Username, &user.Password)
 
-	if err != nil{
-		if err == db.NoRows{
+	w.Header().Set("Content-Type", "application/json")
+
+	if err != nil {
+		if err == db.NoRows {
 			fmt.Println("Invalid credentials!")
 			json.NewEncoder(w).Encode(map[string]any{
 				"message": "failed",
-				"status": http.NotFound,
-				"error": "Invalid credentials.",
+				"status":  http.NotFound,
+				"error":   "Invalid credentials.",
+			})
+			return
+		} else {
+			json.NewEncoder(w).Encode(map[string]any{
+				"message": "failed",
+				"status":  http.StatusBadGateway,
+				"error":   err.Error(),
 			})
 			return
 		}
-		fmt.Printf("%s", err)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
 	json.NewEncoder(w).Encode(map[string]any{
 		"message": "login success",
-		"status": http.StatusOK,
+		"status":  http.StatusOK,
+		"data": map[string]string{
+			"username": user.Username,
+		},
 	})
 
-	fmt.Println("Login success")	
+	fmt.Println("Login success")
 }
 
+func SaveAWSCredentials(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	var request model.AWSCredentialsRequest
 
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		http.Error(w, "Invalid Request Body", http.StatusBadRequest) // return error if not able to parse body
+		return
+	}
+	encryptedID := utils.EncryptString(request.AccessKeyID)
+	encryptedSecret := utils.EncryptString(request.AccessKeySecret)
+	_, err = db.DB.Exec(ctx, "UPDATE users SET awskeyid = $1, awskeysecret= $2, awsregion=$3 WHERE username=$4;",
+		encryptedID, encryptedSecret, request.Region, request.Username)
+
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "failed",
+			"status":  http.StatusNotFound,
+			"error":   err.Error(),
+		})
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]any{
+		"message": "update success",
+		"status":  http.StatusOK,
+	})
+
+}
