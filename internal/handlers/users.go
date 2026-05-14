@@ -25,8 +25,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	hashedPassword = utils.HashString(request.Password) // hash password before comparison
 
-	err = db.DB.QueryRow(ctx, "SELECT username, password FROM users WHERE username=$1 AND password=$2;",
-		request.Username, hashedPassword).Scan(&user.Username, &user.Password)
+	err = db.VerifyUserCredentials(ctx, request.Username, hashedPassword, &user) //check if credentials exist in database
 
 	w.Header().Set("Content-Type", "application/json")
 
@@ -35,7 +34,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Invalid credentials!")
 			json.NewEncoder(w).Encode(map[string]any{
 				"message": "failed",
-				"status":  http.NotFound,
+				"status":  404,
 				"error":   "Invalid credentials.",
 			})
 			return
@@ -102,8 +101,7 @@ func SaveAWSCredentials(w http.ResponseWriter, r *http.Request) {
 	encryptedID := utils.EncryptString(request.AccessKeyID)
 	encryptedSecret := utils.EncryptString(request.AccessKeySecret)
 
-	_, err = db.DB.Exec(ctx, "UPDATE users SET awskeyid = $1, awskeysecret=$2, awsregion=$3 WHERE username=$4;",
-		encryptedID, encryptedSecret, request.Region, request.Username)
+	err = db.SaveAWSCredentials(ctx, encryptedID, encryptedSecret, request.Region, request.Username) //save aws credentials in database
 
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
