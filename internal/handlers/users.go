@@ -70,9 +70,39 @@ func SaveAWSCredentials(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid Request Body", http.StatusBadRequest) // return error if not able to parse body
 		return
 	}
+	// check if keys are in valid format
+	if !utils.IsValidAccessKey(request.AccessKeyID) {
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "failed",
+			"status":  http.StatusNotFound,
+			"error":   "Access Key ID is not in valid format!",
+		})
+		return
+	}
+	if !utils.IsValidSecretKey(request.AccessKeySecret) {
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "failed",
+			"status":  http.StatusNotFound,
+			"error":   "Access Key Secret is not in valid format!",
+		})
+		return
+	}
+
+	err = utils.VerifyAWSCredentials(request.AccessKeyID, request.AccessKeySecret, request.Region) // verify with AWS if user exist
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "failed",
+			"status":  http.StatusNotFound,
+			"error":   "AWS keys provided are invalid!",
+		})
+		return
+	}
+
+	// encrypt keys before saving to database
 	encryptedID := utils.EncryptString(request.AccessKeyID)
 	encryptedSecret := utils.EncryptString(request.AccessKeySecret)
-	_, err = db.DB.Exec(ctx, "UPDATE users SET awskeyid = $1, awskeysecret= $2, awsregion=$3 WHERE username=$4;",
+
+	_, err = db.DB.Exec(ctx, "UPDATE users SET awskeyid = $1, awskeysecret=$2, awsregion=$3 WHERE username=$4;",
 		encryptedID, encryptedSecret, request.Region, request.Username)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -82,6 +112,7 @@ func SaveAWSCredentials(w http.ResponseWriter, r *http.Request) {
 			"status":  http.StatusNotFound,
 			"error":   err.Error(),
 		})
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]any{
