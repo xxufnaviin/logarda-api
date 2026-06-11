@@ -12,6 +12,7 @@ func main() {
 	defer db.DB.Close() // calls before function closes
 
 	http.HandleFunc("/api/health", handlers.GetHealth)
+	http.HandleFunc("/api/auth/register", handlers.Register)
 	http.HandleFunc("/api/auth/login", handlers.Login)
 	http.HandleFunc("/api/aws/credentials/update", handlers.SaveAWSCredentials)
 

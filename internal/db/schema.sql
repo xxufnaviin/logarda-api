@@ -41,7 +41,7 @@ CREATE TABLE logs (
 );
 
 CREATE TABLE users (
-    username VARCHAR NOT NULL,
+    username VARCHAR NOT NULL PRIMARY KEY,
     password VARCHAR NOT NULL,
     awskeyid VARCHAR,
     awskeysecret VARCHAR,

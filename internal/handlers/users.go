@@ -33,14 +33,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		if err == db.NoRows {
 			fmt.Println("Invalid credentials!")
 			json.NewEncoder(w).Encode(map[string]any{
-				"message": "failed",
+				"message": "login failed",
 				"status":  404,
 				"error":   "Invalid credentials.",
 			})
 			return
 		} else {
 			json.NewEncoder(w).Encode(map[string]any{
-				"message": "failed",
+				"message": "login failed",
 				"status":  http.StatusBadGateway,
 				"error":   err.Error(),
 			})
@@ -58,6 +58,74 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	})
 
 	fmt.Println("Login success")
+}
+
+func Register(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var request model.RegisterRequest
+	var userExists bool
+
+	// decode the request body into register struct
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		http.Error(w, "Invalid Request Body", http.StatusBadRequest) // return error if not able to parse body
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	// check if username exists already in database
+	err, userExists = db.CheckUniqueUsername(ctx, request.Username)
+
+	if err != nil {
+		fmt.Println("Failed to check if username exists. Register Failed.")
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "register failed",
+			"status":  404,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	if userExists {
+		fmt.Println("Username already exists! Please try again.")
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "register failed",
+			"status":  404,
+			"error":   "username exists",
+		})
+		return
+	}
+
+	// hash password before storing
+	hashedPassword := utils.HashString(request.Password)
+
+	// register new user and update database
+	err = db.RegisterNewUser(ctx, request.Username, hashedPassword)
+
+
+
+	if err != nil {
+		fmt.Println("Invalid username or password!")
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "register failed",
+			"status":  404,
+			"error":   "Invalid credentials.",
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]any{
+		"message": "register success",
+		"status":  http.StatusOK,
+		"data": map[string]string{
+			"username": request.Username,
+		},
+	})
+
+	fmt.Println("User Registered")
+
 }
 
 func SaveAWSCredentials(w http.ResponseWriter, r *http.Request) {
