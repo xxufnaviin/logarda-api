@@ -33,6 +33,8 @@ CREATE TABLE logs (
     serviceName VARCHAR NOT NULL,
     eventName VARCHAR NOT NULL,
     username VARCHAR NOT NULL,
+    explanation VARCHAR,
+    errorExplained BOOLEAN DEFAULT false,
     
     PRIMARY KEY (eventTime, errorCode, errorMessage) --composite primary keys to prevent double entries at same timestamp for same error code + error message
     CONSTRAINT fk_logs_user

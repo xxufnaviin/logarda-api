@@ -16,6 +16,8 @@ func main() {
 	http.HandleFunc("/api/auth/login", handlers.Login)
 	http.HandleFunc("/api/aws/credentials/update", handlers.SaveAWSCredentials)
 
+	http.HandleFunc("/websocket", handlers.WebsocketHandler)
+
 	fmt.Println("Logarda backend server started at http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
 

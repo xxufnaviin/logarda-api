@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 // define structs here
 
 type User struct { // database schema
@@ -25,3 +27,24 @@ type AWSCredentialsRequest struct {
 	AccessKeySecret string `json:"accessKeySecret"`
 	Region          string `json:"region"`
 }
+
+type AWSErrorEvent struct {
+	EventTime    time.Time `json:"eventTime"`
+	ErrorCode    string    `json:"errorCode"`
+	ErrorMessage string    `json:"errorMessage"`
+	ServiceName  string    `json:"serviceName"`
+	EventName    string    `json:"eventName"`
+	Username     string    `json:"username"`
+}
+
+type WebsocketRequest struct {
+	Username string `json:"username"`
+}
+
+type Message struct {
+	MsgType string `json:"type"`
+	Msg     string `json:"msg"`
+}
+
+// map user id to channels for messages
+var OnlineUsers = make(map[string]chan Message)

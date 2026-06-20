@@ -12,6 +12,8 @@ func Init() {
 	config.LoadSecrets()
 	// create postgresql connection pool
 	db.CreatePostgreSQLPool()
+	// create redis connection
+	db.CreateRedisClient()
 }
 
 func GetHealth(w http.ResponseWriter, r *http.Request) {

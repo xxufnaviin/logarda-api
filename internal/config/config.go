@@ -15,6 +15,7 @@ var POSTGRES_PASSWORD string
 var POSTGRES_URL string
 var REDIS_HOST string
 var REDIS_PORT string
+var REDIS_URL string
 
 func LoadSecrets() {
 	err := godotenv.Load()
@@ -35,4 +36,6 @@ func LoadSecrets() {
 		POSTGRES_PASSWORD,
 		POSTGRES_HOST,
 		POSTGRES_DATABASE)
+	
+	REDIS_URL = fmt.Sprintf("%s:%s", REDIS_HOST, REDIS_PORT)
 }

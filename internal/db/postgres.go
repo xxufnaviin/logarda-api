@@ -61,3 +61,10 @@ func CheckUniqueUsername(ctx context.Context, username string) (error, bool) {
 
 	return err, true // return username exist = true if rows found
 }
+
+func SaveErrorExplanations(ctx context.Context, event *model.AWSErrorEvent, explanation string) error {
+	// current toggle between prd and stg here
+	_, err := DB.Exec(ctx, "UPDATE stg_logs SET explanation = $1, errorExplained=$2  WHERE eventTime = $3 AND errorCode = $4 AND errorMessage = $5;",
+		explanation, true, event.EventTime, event.ErrorCode, event.ErrorMessage)
+	return err
+}
