@@ -52,8 +52,8 @@ func CheckUniqueUsername(ctx context.Context, username string) (error, bool) {
 	err := DB.QueryRow(ctx, "SELECT username FROM stg_users WHERE username=$1;",
 		username).Scan(&existingUser)
 
-	if err != nil{
-		if err == NoRows{ // return username exist = false if no rows found, and error = nil
+	if err != nil {
+		if err == NoRows { // return username exist = false if no rows found, and error = nil
 			return nil, false
 		}
 		return err, false // return error if found and handle
@@ -68,3 +68,58 @@ func SaveErrorExplanations(ctx context.Context, event *model.AWSErrorEvent, expl
 		explanation, true, event.EventTime, event.ErrorCode, event.ErrorMessage)
 	return err
 }
+
+func GetMetrics(ctx context.Context, username string, duration string) ([]model.Metrics, error) {
+	var metrics []model.Metrics
+
+	// get all metrics for the given duration (all instance)
+	results, err := DB.Query(ctx, "SELECT * FROM stg_metrics WHERE username = $1 AND metricTime >= NOW() - make_interval(hours => $2) ORDER BY instanceID, metricTime",
+		username, duration)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+	defer results.Close()
+	
+	// scan each row into a struct and append to array
+	for results.Next() {
+		var metric model.Metrics
+		err := results.Scan(&metric.MetricTime, &metric.InstanceID, &metric.Cpu, &metric.Network, &metric.Memory, &metric.Username)
+		if err != nil {
+			return nil, err
+		}
+		// append each row into list of metrics
+		metrics = append(metrics, metric)
+	}
+
+	return metrics, nil
+}
+
+func GetErrorLogs(ctx context.Context, username string, duration string) ([]model.Logs, error) {
+	var logs []model.Logs
+
+	// get all logs for the given duration 
+	results, err := DB.Query(ctx, "SELECT * FROM stg_logs WHERE username = $1 AND errorExplained = true AND eventTime >= NOW() - make_interval(hours => $2) ORDER BY eventTime",
+		username, duration)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+	defer results.Close()
+	
+	// scan each row into a struct and append to array
+	for results.Next() {
+		var log model.Logs
+		err := results.Scan(&log.EventTime, &log.ErrorCode, &log.ErrorMessage, &log.ServiceName, &log.EventName, &log.Username, &log.Explanation, &log.ErrorExplained)
+		if err != nil {
+			return nil, err
+		}
+		// append each row into list of logs
+		logs = append(logs, log)
+	}
+
+	return logs, nil
+}
+

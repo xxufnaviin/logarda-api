@@ -4,17 +4,23 @@ import (
 	"fmt"
 	"logarda/internal/db"
 	"logarda/internal/handlers"
+	"logarda/internal/workers"
 	"net/http"
 )
 
 func main() {
 	handlers.Init()
+	go workers.ErrorLogsWorker()
+	go workers.MetricStreamWorker()
+
 	defer db.DB.Close() // calls before function closes
 
 	http.HandleFunc("/api/health", handlers.GetHealth)
 	http.HandleFunc("/api/auth/register", handlers.Register)
 	http.HandleFunc("/api/auth/login", handlers.Login)
 	http.HandleFunc("/api/aws/credentials/update", handlers.SaveAWSCredentials)
+	http.HandleFunc("/api/metrics", handlers.GetMetrics)
+	http.HandleFunc("/api/logs", handlers.GetErrorLogs)
 
 	http.HandleFunc("/websocket", handlers.WebsocketHandler)
 

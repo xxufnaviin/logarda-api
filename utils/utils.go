@@ -69,3 +69,15 @@ func UnmarshalAWSErrorEvent(str string, event *model.AWSErrorEvent) error {
 
 	return nil
 }
+
+func UnmarshalAWSMetricEvent(str string, event *model.Metrics) error {
+	data := []byte(str)
+
+	err := json.Unmarshal(data, event)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+

@@ -1,0 +1,71 @@
+package workers
+
+import (
+	"context"
+	"fmt"
+	"logarda/internal/db"
+	"logarda/internal/model"
+	"logarda/utils"
+	"sync"
+	"time"
+)
+
+var errorMsg string
+var err error
+var errorEvent model.AWSErrorEvent
+var mu sync.RWMutex
+
+// @ goroutine
+func ErrorLogsWorker() {
+	for {
+		ctx := context.Background()
+
+		// consume error event from redis queue
+		errorMsg, err = db.ConsumeErrorEvents()
+		fmt.Println(errorMsg)
+		if err != nil {
+			fmt.Printf("Error getting event data.")
+			continue
+		}
+
+		// make api call
+		errorExplanation := "error explained" // placeholder
+
+		// unmarshal string to JSON before saving to database
+		err = utils.UnmarshalAWSErrorEvent(errorMsg, &errorEvent)
+		if err != nil {
+			fmt.Printf("Error during parsing event data.")
+			continue
+		}
+
+		// stream to websocket (online users)
+		mu.Lock() // get the msg channel mutually exclusive to prevent unsafe actions
+		msgChannel, ok := model.OnlineUsers[errorEvent.Username]
+		mu.Unlock()
+
+		if ok {
+			msgChannel <- model.Message{
+				MsgType: "logs",
+				Msg: model.Logs{
+					EventTime:      errorEvent.EventTime,
+					ErrorCode:      errorEvent.ErrorCode,
+					ErrorMessage:   errorEvent.ErrorMessage,
+					ServiceName:    errorEvent.ServiceName,
+					EventName:      errorEvent.EventName,
+					Username:       errorEvent.Username,
+					Explanation:    errorExplanation,
+					ErrorExplained: true,
+				}}
+		}
+
+		// save to database
+		err = db.SaveErrorExplanations(ctx, &errorEvent, errorExplanation)
+		if err != nil {
+			fmt.Printf("Error saving error explanation")
+			continue
+		}
+		fmt.Println("success")
+		time.Sleep(5000000000) // for simulation
+	}
+
+}

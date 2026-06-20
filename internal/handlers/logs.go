@@ -1,47 +1,42 @@
 package handlers
 
 import (
-	"context"
-	"fmt"
+	"encoding/json"
 	"logarda/internal/db"
 	"logarda/internal/model"
-	"logarda/utils"
+	"net/http"
 )
 
-var errorMsg string
-var err error
-var errorEvent model.AWSErrorEvent
+func GetErrorLogs(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var request model.MetricsLogsRequest
 
-// @ goroutine
-func ErrorLogsWorker() {
-	ctx := context.Background()
+	// get username and duration from query params
+	request.Username = r.URL.Query().Get("username")
+	request.Duration = r.URL.Query().Get("duration")
 
-	// consume error event from redis queue
-	errorMsg, err = db.ConsumeErrorEvents()
-	fmt.Println(errorMsg)
-	if err != nil {
-		fmt.Printf("Error getting event data.")
-		return // change to continue
+	if request.Username == "" {
+		http.Error(w, "Invalid Parameters", http.StatusBadRequest) // return error if not able to get username
+		return
+	}
+	if request.Duration == "" {
+		request.Duration = "24" // if empty set duration to default (24 hours)
 	}
 
-	// make api call
-	errorExplanation := "error explained" // placeholder
+	w.Header().Set("Content-Type", "application/json")
 
-	// unmarshal string to JSON before saving to database
-	err = utils.UnmarshalAWSErrorEvent(errorMsg, &errorEvent)
+	// get all error logs here
+	logs, err := db.GetErrorLogs(ctx, request.Username, request.Duration)
 	if err != nil {
-		fmt.Printf("Error during parsing event data.")
-		return // change to continue
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "failed to get error logs",
+			"status":  400,
+			"error":   err.Error(),
+		})
+		return
 	}
 
-	// stream to websocket (online users)
-
-	// save to database
-	err = db.SaveErrorExplanations(ctx, &errorEvent, errorExplanation)
-	if err != nil {
-		fmt.Printf("Error saving error explanation")
-		return // change to continue
-	}
-	fmt.Println("success")
-
+	json.NewEncoder(w).Encode(map[string]any{
+		"data":    logs,
+		"message": "success"})
 }
