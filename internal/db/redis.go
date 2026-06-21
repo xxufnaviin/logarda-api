@@ -16,8 +16,8 @@ func CreateRedisClient() {
 	Redis = redis.NewClient(&redis.Options{Addr: config.REDIS_URL})
 
 	// init queue keys
-	errorQueue = "stg_error_messages"
-	metricQueue = "stg_metrics"
+	errorQueue = "error_messages"
+	metricQueue = "metrics"
 }
 
 // use brop in production for workers (blocking pop - waits until queue has messages to pop, wont return nil)

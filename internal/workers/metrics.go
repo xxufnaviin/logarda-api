@@ -39,7 +39,7 @@ func MetricStreamWorker() {
 				MsgType: "metrics",
 				Msg:     metrics}
 		}
-		time.Sleep(5000000000) // for simulation
+		time.Sleep(500000000) // for simulation
 	}
 
 }
