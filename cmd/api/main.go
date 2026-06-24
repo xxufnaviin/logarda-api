@@ -10,8 +10,9 @@ import (
 
 func main() {
 	handlers.Init()
-	go workers.ErrorLogsWorker()
-	go workers.MetricStreamWorker()
+	// go workers.ErrorLogsWorker()
+	// go workers.MetricStreamWorker()
+	go workers.PredictedMetricStreamWorker()
 
 	defer db.DB.Close() // calls before function closes
 
@@ -23,6 +24,8 @@ func main() {
 	http.HandleFunc("/api/logs", handlers.GetErrorLogs)
 
 	http.HandleFunc("/websocket", handlers.WebsocketHandler)
+
+	http.HandleFunc("/api/analytics/predict", handlers.PredictMetrics)
 
 	fmt.Println("Logarda backend server started at http://localhost:8080")
 	http.ListenAndServe(":8080", nil)

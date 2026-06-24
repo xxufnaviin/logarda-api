@@ -10,6 +10,7 @@ import (
 var Redis *redis.Client
 var errorQueue string
 var metricQueue string
+var predictedMetricQueue string
 
 func CreateRedisClient() {
 	// create new redis client and connect to redis server
@@ -18,6 +19,7 @@ func CreateRedisClient() {
 	// init queue keys
 	errorQueue = "error_messages"
 	metricQueue = "metrics"
+	predictedMetricQueue = "stg_predicted_metrics"
 }
 
 // use brop in production for workers (blocking pop - waits until queue has messages to pop, wont return nil)
@@ -46,4 +48,17 @@ func ConsumeMetricEvents() (string, error) {
 	metricEvent := result[1] // value
 
 	return metricEvent, nil
+}
+
+func ConsumePredictedMetricEvents() (string, error) {
+	ctx := context.Background()
+	result, err := Redis.BRPop(ctx, 0, predictedMetricQueue).Result()
+
+	if err != nil {
+		return "", err
+	}
+	// get the error event (json string) and send it to LLM api to unmarshal and make inference
+	predictedMetricEvent := result[1] // value
+
+	return predictedMetricEvent, nil
 }

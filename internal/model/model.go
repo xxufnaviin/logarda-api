@@ -22,6 +22,15 @@ type WebsocketRequest struct {
 	Username string `json:"username"`
 }
 
+type MetricsLogsRequest struct {
+	Username string `json:"username"`
+	Duration string `json:"duration"`
+}
+
+type PredictMetricsResponse struct {
+	Message string `json:"message"`
+	Status  string `json:"status"`
+}
 type AWSErrorEvent struct {
 	EventTime    time.Time `json:"eventTime"`
 	ErrorCode    string    `json:"errorCode"`
@@ -29,11 +38,6 @@ type AWSErrorEvent struct {
 	ServiceName  string    `json:"serviceName"`
 	EventName    string    `json:"eventName"`
 	Username     string    `json:"username"`
-}
-
-type MetricsLogsRequest struct {
-	Username string `json:"username"`
-	Duration string `json:"duration"`
 }
 
 type User struct { // database schema
@@ -54,6 +58,15 @@ type Metrics struct {
 	Username   string    `json:"username"`
 }
 
+type PredictedMetrics struct {
+	MetricTime time.Time `json:"metrictime"`
+	InstanceID string    `json:"instanceid"`
+	Cpu        float64   `json:"cpu"`
+	Network    float64   `json:"network"`
+	Memory     float64   `json:"memory"`
+	Username   string    `json:"username"`
+}
+
 type Logs struct {
 	EventTime      time.Time `json:"eventTime"`
 	ErrorCode      string    `json:"errorCode"`
@@ -61,7 +74,7 @@ type Logs struct {
 	ServiceName    string    `json:"serviceName"`
 	EventName      string    `json:"eventName"`
 	Username       string    `json:"username"`
-	Explanation    string    `json:"explanation"` 
+	Explanation    string    `json:"explanation"`
 	ErrorExplained bool      `json:"errorExplained"`
 }
 type Message struct {

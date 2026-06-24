@@ -81,3 +81,14 @@ func UnmarshalAWSMetricEvent(str string, event *model.Metrics) error {
 	return nil
 }
 
+func UnmarshalAWSPredictedMetricEvent(str string, event *model.PredictedMetrics) error {
+	data := []byte(str)
+	
+	err := json.Unmarshal(data, event)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
