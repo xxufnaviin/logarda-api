@@ -43,9 +43,9 @@ type AWSErrorEvent struct {
 type User struct { // database schema
 	Username        string
 	Password        string
-	AccessKeyID     string
-	AccessKeySecret string
-	Region          string
+	AccessKeyID     *string
+	AccessKeySecret *string
+	Region          *string
 	CollectorOn     bool
 }
 

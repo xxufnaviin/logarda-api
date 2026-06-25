@@ -81,7 +81,7 @@ func GetMetrics(ctx context.Context, username string, duration string) ([]model.
 		return nil, err
 	}
 	defer results.Close()
-	
+
 	// scan each row into a struct and append to array
 	for results.Next() {
 		var metric model.Metrics
@@ -99,7 +99,7 @@ func GetMetrics(ctx context.Context, username string, duration string) ([]model.
 func GetErrorLogs(ctx context.Context, username string, duration string) ([]model.Logs, error) {
 	var logs []model.Logs
 
-	// get all logs for the given duration 
+	// get all logs for the given duration
 	results, err := DB.Query(ctx, "SELECT * FROM stg_logs WHERE username = $1 AND errorExplained = true AND eventTime >= NOW() - make_interval(hours => $2) ORDER BY eventTime",
 		username, duration)
 
@@ -108,7 +108,7 @@ func GetErrorLogs(ctx context.Context, username string, duration string) ([]mode
 		return nil, err
 	}
 	defer results.Close()
-	
+
 	// scan each row into a struct and append to array
 	for results.Next() {
 		var log model.Logs
@@ -123,3 +123,16 @@ func GetErrorLogs(ctx context.Context, username string, duration string) ([]mode
 	return logs, nil
 }
 
+func GetUser(ctx context.Context, username string, user *model.User) error {
+	err := DB.QueryRow(ctx, "SELECT * FROM stg_users WHERE username=$1;", username).Scan(
+		&user.Username, &user.Password, &user.AccessKeyID, &user.AccessKeySecret, &user.Region, &user.CollectorOn)
+
+	return err
+}
+
+func UpdataCollectorToggle(ctx context.Context, username string) error {
+	// current toggle between prd and stg here
+	_, err := DB.Exec(ctx, "UPDATE stg_users SET collector_on = True WHERE username = $1;", username)
+
+	return err
+}

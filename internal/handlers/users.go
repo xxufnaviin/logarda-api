@@ -103,8 +103,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	// register new user and update database
 	err = db.RegisterNewUser(ctx, request.Username, hashedPassword)
 
-
-
 	if err != nil {
 		fmt.Println("Invalid username or password!")
 		json.NewEncoder(w).Encode(map[string]any{
@@ -184,6 +182,53 @@ func SaveAWSCredentials(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]any{
 		"message": "update success",
 		"status":  http.StatusOK,
+	})
+
+}
+
+func GetUserDetails(w http.ResponseWriter, r *http.Request) {
+	var user model.User
+	username := r.URL.Query().Get("username")
+	ctx := r.Context()
+
+	err := db.GetUser(ctx, username, &user) // get user from database
+
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "Failed. User not found",
+			"status":  http.StatusNotFound,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]any{
+		"data":   user,
+		"status": http.StatusOK,
+	})
+
+}
+
+func SetCollectorOn(w http.ResponseWriter, r *http.Request) {
+	username := r.URL.Query().Get("username")
+	ctx := r.Context()
+
+	err := db.UpdataCollectorToggle(ctx, username) // set collector toggle on
+
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "Failed. Collector not turned on.",
+			"status":  http.StatusNotFound,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]any{
+		"message":   "Collector turned on.",
+		"status": http.StatusOK,
 	})
 
 }

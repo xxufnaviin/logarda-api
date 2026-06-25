@@ -11,6 +11,7 @@ import (
 )
 
 var errorMsg string
+var errorExplanation string
 var err error
 var errorEvent model.AWSErrorEvent
 var mu sync.RWMutex
@@ -28,15 +29,15 @@ func ErrorLogsWorker() {
 			continue
 		}
 
-		// make api call
-		errorExplanation := "error explained" // placeholder
-
 		// unmarshal string to JSON before saving to database
 		err = utils.UnmarshalAWSErrorEvent(errorMsg, &errorEvent)
 		if err != nil {
 			fmt.Printf("Error during parsing event data.")
 			continue
 		}
+
+		// make api call
+		errorExplanation = "error explained" // placeholder
 
 		// stream to websocket (online users)
 		mu.Lock() // get the msg channel mutually exclusive to prevent unsafe actions
