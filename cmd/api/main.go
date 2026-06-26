@@ -10,8 +10,8 @@ import (
 
 func main() {
 	handlers.Init()
-	// go workers.ErrorLogsWorker()
-	// go workers.MetricStreamWorker()
+	go workers.ErrorLogsWorker()
+	go workers.MetricStreamWorker()
 	go workers.PredictedMetricStreamWorker()
 
 	defer db.DB.Close() // calls before function closes

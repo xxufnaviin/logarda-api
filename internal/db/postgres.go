@@ -73,7 +73,7 @@ func GetMetrics(ctx context.Context, username string, duration string) ([]model.
 	var metrics []model.Metrics
 
 	// get all metrics for the given duration (all instance)
-	results, err := DB.Query(ctx, "SELECT * FROM stg_metrics WHERE username = $1 AND metricTime >= NOW() - make_interval(hours => $2) ORDER BY instanceID, metricTime",
+	results, err := DB.Query(ctx, "SELECT * FROM metrics WHERE username = $1 AND metricTime >= NOW() - make_interval(hours => $2) ORDER BY instanceID, metricTime",
 		username, duration)
 
 	if err != nil {
@@ -100,7 +100,7 @@ func GetErrorLogs(ctx context.Context, username string, duration string) ([]mode
 	var logs []model.Logs
 
 	// get all logs for the given duration
-	results, err := DB.Query(ctx, "SELECT * FROM stg_logs WHERE username = $1 AND errorExplained = true AND eventTime >= NOW() - make_interval(hours => $2) ORDER BY eventTime",
+	results, err := DB.Query(ctx, "SELECT * FROM logs WHERE username = $1 AND errorExplained = true AND eventTime >= NOW() - make_interval(hours => $2) ORDER BY eventTime",
 		username, duration)
 
 	if err != nil {

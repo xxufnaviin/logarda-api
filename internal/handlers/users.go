@@ -163,6 +163,16 @@ func SaveAWSCredentials(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hasAllPermissions := utils.HasAllPermissions(request.AccessKeyID, request.AccessKeySecret, request.Region)
+	if !hasAllPermissions{
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "failed",
+			"status":  http.StatusNotFound,
+			"error":   "AWS access keys have insufficient permissions! Please enable EC2, CloudWatch and CloudTrail",
+		})
+		return
+	}
+
 	// encrypt keys before saving to database
 	encryptedID := utils.EncryptString(request.AccessKeyID)
 	encryptedSecret := utils.EncryptString(request.AccessKeySecret)
