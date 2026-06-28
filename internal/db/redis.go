@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"logarda/internal/config"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -14,7 +15,7 @@ var predictedMetricQueue string
 
 func CreateRedisClient() {
 	// create new redis client and connect to redis server
-	Redis = redis.NewClient(&redis.Options{Addr: config.REDIS_URL})
+	Redis = redis.NewClient(&redis.Options{Addr: config.REDIS_URL, ReadTimeout: -1, PoolSize: 10, ConnMaxIdleTime: 1 * time.Minute})
 
 	// init queue keys
 	errorQueue = "error_messages"
@@ -57,7 +58,7 @@ func ConsumePredictedMetricEvents() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// get the error event (json string) and send it to LLM api to unmarshal and make inference
+	// get the metric event (json string) and send it to LLM api to unmarshal and make inference
 	predictedMetricEvent := result[1] // value
 
 	return predictedMetricEvent, nil

@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-var predicted_metric string
-var predicted_metrics model.PredictedMetrics
+// var predicted_metrics model.PredictedMetrics
 
 // @ goroutine
 func PredictedMetricStreamWorker() {
 	for {
+		predicted_metrics := model.PredictedMetrics{}
 		// consume metrics from redis queue
-		predicted_metric, err = db.ConsumePredictedMetricEvents()
+		predicted_metric, err := db.ConsumePredictedMetricEvents()
 		fmt.Println(predicted_metric)
 		if err != nil {
 			fmt.Printf("Error getting event data.")

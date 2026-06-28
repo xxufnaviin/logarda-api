@@ -5,6 +5,7 @@ import (
 	"logarda/internal/config"
 	"logarda/internal/db"
 	"net/http"
+	"time"
 )
 
 func Init() {
@@ -14,6 +15,8 @@ func Init() {
 	db.CreatePostgreSQLPool()
 	// create redis connection
 	db.CreateRedisClient()
+
+	time.Sleep(5 * time.Second) // init cooldown before starting workers
 }
 
 func GetHealth(w http.ResponseWriter, r *http.Request) {

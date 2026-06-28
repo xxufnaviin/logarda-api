@@ -10,9 +10,8 @@ import (
 	"time"
 )
 
-var errorMsg string
 var errorExplanation string
-var err error
+
 var errorEvent model.AWSErrorEvent
 var mu sync.RWMutex
 
@@ -22,7 +21,7 @@ func ErrorLogsWorker() {
 		ctx := context.Background()
 
 		// consume error event from redis queue
-		errorMsg, err = db.ConsumeErrorEvents()
+		errorMsg, err := db.ConsumeErrorEvents()
 		fmt.Println(errorMsg)
 		if err != nil {
 			fmt.Printf("Error getting event data.")
