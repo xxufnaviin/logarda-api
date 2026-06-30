@@ -136,3 +136,31 @@ func UpdataCollectorToggle(ctx context.Context, username string) error {
 
 	return err
 }
+
+func GetErrorStats(ctx context.Context, username, aggregateFunc, aggregateCol string) ([]model.LogStats, error) {
+	var logstats []model.LogStats
+
+	query := fmt.Sprintf("SELECT %s, %s(*) FROM logs WHERE username ='%s' GROUP BY %s",aggregateCol, aggregateFunc, username, aggregateCol)
+	// get all logs for the given duration
+	results, err := DB.Query(ctx, query)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+	defer results.Close()
+
+	// scan each row into a struct and append to array
+	for results.Next() {
+		var stats model.LogStats
+		err := results.Scan(&stats.Column, &stats.AggValue)
+		if err != nil {
+			return nil, err
+		}
+		// append each row into list of logs
+		logstats = append(logstats, stats)
+	}
+
+	return logstats, nil
+
+}

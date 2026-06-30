@@ -3,6 +3,7 @@ package workers
 import (
 	"context"
 	"fmt"
+	"log"
 	"logarda/internal/db"
 	"logarda/internal/model"
 	"logarda/utils"
@@ -24,6 +25,10 @@ func ErrorLogsWorker() {
 		errorMsg, err := db.ConsumeErrorEvents()
 		fmt.Println(errorMsg)
 		if err != nil {
+			if err == db.RedisNil {
+				log.Printf("Logs worker timeout. Reconnecting.")
+				continue
+			}
 			fmt.Printf("Error getting event data.")
 			continue
 		}
@@ -65,7 +70,7 @@ func ErrorLogsWorker() {
 			continue
 		}
 		fmt.Println("success")
-		time.Sleep(500000000) // for simulation
+		time.Sleep(1000000000) // for simulation
 	}
 
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"logarda/internal/db"
 	"logarda/internal/model"
 	"logarda/utils"
@@ -57,7 +58,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		},
 	})
 
-	fmt.Println("Login success")
+	log.Printf("Login success for %s\n", request.Username)
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -122,7 +123,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		},
 	})
 
-	fmt.Println("User Registered")
+	log.Printf("User Registered for %s\n", request.Username)
 
 }
 
@@ -164,7 +165,7 @@ func SaveAWSCredentials(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hasAllPermissions := utils.HasAllPermissions(request.AccessKeyID, request.AccessKeySecret, request.Region)
-	if !hasAllPermissions{
+	if !hasAllPermissions {
 		json.NewEncoder(w).Encode(map[string]any{
 			"message": "failed",
 			"status":  http.StatusNotFound,
@@ -193,6 +194,7 @@ func SaveAWSCredentials(w http.ResponseWriter, r *http.Request) {
 		"message": "update success",
 		"status":  http.StatusOK,
 	})
+	log.Printf("AWS credentials successfully saved for %s\n", request.Username)
 
 }
 
@@ -217,7 +219,7 @@ func GetUserDetails(w http.ResponseWriter, r *http.Request) {
 		"data":   user,
 		"status": http.StatusOK,
 	})
-
+	log.Printf("User details fetched for %s\n", username)
 }
 
 func SetCollectorOn(w http.ResponseWriter, r *http.Request) {
@@ -237,8 +239,8 @@ func SetCollectorOn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(map[string]any{
-		"message":   "Collector turned on.",
-		"status": http.StatusOK,
+		"message": "Collector turned on.",
+		"status":  http.StatusOK,
 	})
-
+	log.Printf("Collector turned on for %s\n", username)
 }

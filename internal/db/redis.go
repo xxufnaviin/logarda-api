@@ -12,6 +12,7 @@ var Redis *redis.Client
 var errorQueue string
 var metricQueue string
 var predictedMetricQueue string
+var RedisNil = redis.Nil
 
 func CreateRedisClient() {
 	// create new redis client and connect to redis server
@@ -27,7 +28,7 @@ func CreateRedisClient() {
 // @ sub-goroutine
 func ConsumeErrorEvents() (string, error) {
 	ctx := context.Background()
-	result, err := Redis.BRPop(ctx, 0, errorQueue).Result()
+	result, err := Redis.BRPop(ctx, 30*time.Second, errorQueue).Result()
 
 	if err != nil {
 		return "", err
@@ -40,7 +41,7 @@ func ConsumeErrorEvents() (string, error) {
 
 func ConsumeMetricEvents() (string, error) {
 	ctx := context.Background()
-	result, err := Redis.BRPop(ctx, 0, metricQueue).Result()
+	result, err := Redis.BRPop(ctx, 30*time.Second, metricQueue).Result()
 
 	if err != nil {
 		return "", err
@@ -53,7 +54,7 @@ func ConsumeMetricEvents() (string, error) {
 
 func ConsumePredictedMetricEvents() (string, error) {
 	ctx := context.Background()
-	result, err := Redis.BRPop(ctx, 0, predictedMetricQueue).Result()
+	result, err := Redis.BRPop(ctx, 30*time.Second, predictedMetricQueue).Result()
 
 	if err != nil {
 		return "", err

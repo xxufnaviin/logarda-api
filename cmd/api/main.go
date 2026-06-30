@@ -21,7 +21,10 @@ func main() {
 	http.HandleFunc("/api/auth/login", handlers.Login)
 	http.HandleFunc("/api/aws/credentials/update", handlers.SaveAWSCredentials)
 	http.HandleFunc("/api/metrics", handlers.GetMetrics)
+
 	http.HandleFunc("/api/logs", handlers.GetErrorLogs)
+	http.HandleFunc("/api/logs/stats", handlers.GetErrorLogStats)
+
 	http.HandleFunc("/api/user", handlers.GetUserDetails)
 	http.HandleFunc("/api/user/collector", handlers.SetCollectorOn)
 

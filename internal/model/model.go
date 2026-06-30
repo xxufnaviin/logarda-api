@@ -27,6 +27,11 @@ type MetricsLogsRequest struct {
 	Duration string `json:"duration"`
 }
 
+type LogStatsRequest struct {
+	Username      string `json:"username"`
+	AggregateFunc string `json:"aggregateFunc"`
+	AggregateCol  string `json:"aggregateCol"`
+}
 type PredictMetricsResponse struct {
 	Message string `json:"message"`
 	Status  string `json:"status"`
@@ -76,6 +81,11 @@ type Logs struct {
 	Username       string    `json:"username"`
 	Explanation    string    `json:"explanation"`
 	ErrorExplained bool      `json:"errorExplained"`
+}
+
+type LogStats struct {
+	Column   string `json:"column"`
+	AggValue string `json:"aggvalue"`
 }
 type Message struct {
 	MsgType string `json:"type"`

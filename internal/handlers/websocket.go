@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"logarda/internal/model"
 	"net/http"
 
@@ -53,6 +54,7 @@ func AppendOnlineUser(username string) {
 
 	// append user to list of online users with its own channel
 	model.OnlineUsers[username] = msgChannel
+	log.Printf("%s connected.\n", username)
 }
 
 func DeleteOnlineUser(username string) {
@@ -63,6 +65,7 @@ func DeleteOnlineUser(username string) {
 
 	// close channel of online user
 	close(msgChannel)
+	log.Printf("%s disconnected.\n", username)
 }
 
 func GetMessageChannel(username string) chan model.Message {

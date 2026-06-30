@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"logarda/internal/config"
 	"logarda/internal/db"
 	"net/http"
@@ -27,5 +28,5 @@ func GetHealth(w http.ResponseWriter, r *http.Request) {
 		"message": "ok",
 		"status":  http.StatusOK,
 	})
-
+	log.Println("Health Check Status: Online")
 }

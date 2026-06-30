@@ -2,6 +2,7 @@ package workers
 
 import (
 	"fmt"
+	"log"
 	"logarda/internal/db"
 	"logarda/internal/model"
 	"logarda/utils"
@@ -18,6 +19,10 @@ func PredictedMetricStreamWorker() {
 		predicted_metric, err := db.ConsumePredictedMetricEvents()
 		fmt.Println(predicted_metric)
 		if err != nil {
+			if err == db.RedisNil{
+				log.Printf("Predicted Metrics worker timeout. Reconnecting.")
+				continue
+			}
 			fmt.Printf("Error getting event data.")
 			continue
 		}
@@ -39,7 +44,7 @@ func PredictedMetricStreamWorker() {
 				MsgType: "predicted_metrics",
 				Msg:     predicted_metrics}
 		}
-		time.Sleep(500000000) // for simulation
+		time.Sleep(1000000000) // for simulation
 	}
 
 }

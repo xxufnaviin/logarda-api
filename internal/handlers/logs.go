@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"logarda/internal/db"
 	"logarda/internal/model"
 	"net/http"
@@ -39,4 +40,46 @@ func GetErrorLogs(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]any{
 		"data":    logs,
 		"message": "success"})
+	log.Printf("Error logs for the past %s hours fetched for %s\n", request.Duration, request.Username)
+}
+
+func GetErrorLogStats(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var request model.LogStatsRequest
+
+	// get username and duration from query params
+	request.Username = r.URL.Query().Get("username")
+	request.AggregateCol = r.URL.Query().Get("aggregateBy")
+	request.AggregateFunc = r.URL.Query().Get("aggregate")
+
+	if request.Username == "" {
+		http.Error(w, "Invalid Parameters", http.StatusBadRequest) // return error if not able to get username
+		return
+	}
+	if request.AggregateCol == "" {
+		http.Error(w, "Invalid Parameters", http.StatusBadRequest) // return error if not able to get params
+		return
+	}
+	if request.AggregateFunc == "" {
+		http.Error(w, "Invalid Parameters", http.StatusBadRequest) // return error if not able to get params
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	// get all error logs here
+	logstats, err := db.GetErrorStats(ctx, request.Username, request.AggregateFunc, request.AggregateCol)
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "failed to get error logs stats",
+			"status":  400,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]any{
+		"data":    logstats,
+		"message": "success"})
+	log.Printf("Error statistics of %s fetched for %s\n", request.AggregateCol, request.Username)
 }

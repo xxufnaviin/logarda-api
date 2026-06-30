@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"logarda/internal/db"
 	"logarda/internal/model"
 	"net/http"
@@ -44,6 +45,7 @@ func GetMetrics(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]any{
 		"data":    metrics,
 		"message": "success"})
+	log.Printf("Metrics data for the past %s hours fetched for %s\n", request.Duration, request.Username)
 }
 
 func PredictMetrics(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +68,6 @@ func PredictMetrics(w http.ResponseWriter, r *http.Request) {
 	params := url.Values{}
 	params.Add("duration", request.Duration)
 	params.Add("username", request.Username)
-	
 
 	// construct request url using endpoint name and request params
 	request_url := fmt.Sprintf("%s%s?%s", analyticsAPI, predictionEndpoint, params.Encode())
@@ -87,4 +88,6 @@ func PredictMetrics(w http.ResponseWriter, r *http.Request) {
 	// get response from analytical endpoint and return it to user
 	json.NewDecoder(resp.Body).Decode(&response)
 	json.NewEncoder(w).Encode(response)
+
+	log.Printf("Metrics predicted for the next %s hours for %s\n", request.Duration, request.Username)
 }
