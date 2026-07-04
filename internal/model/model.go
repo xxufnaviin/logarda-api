@@ -36,6 +36,10 @@ type LogStatsRequest struct {
 type ModelPerformanceRequest struct {
 	Model string `json:"model"`
 }
+
+type LLMInfereceRequest struct {
+	Query string `json:"query"`
+}
 type PredictMetricsResponse struct {
 	Message string `json:"message"`
 	Status  string `json:"status"`
@@ -43,7 +47,7 @@ type PredictMetricsResponse struct {
 
 type LLMInferenceResponse struct {
 	Data   LLMInfereceData `json:"data"`
-	Status string          `json:"status"`
+	Status int          `json:"status"`
 }
 
 type LLMInfereceData struct {
