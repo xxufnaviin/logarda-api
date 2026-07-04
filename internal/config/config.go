@@ -17,6 +17,8 @@ var REDIS_HOST string
 var REDIS_PORT string
 var REDIS_URL string
 
+var ANALYTICS_API string
+
 func LoadSecrets() {
 	err := godotenv.Load()
 	if err != nil {
@@ -38,4 +40,8 @@ func LoadSecrets() {
 		POSTGRES_DATABASE)
 	
 	REDIS_URL = fmt.Sprintf("%s:%s", REDIS_HOST, REDIS_PORT)
+}
+
+func LoadVariables() {
+	ANALYTICS_API = "http://localhost:8000/api/"
 }

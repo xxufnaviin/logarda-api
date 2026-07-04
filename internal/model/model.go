@@ -32,9 +32,23 @@ type LogStatsRequest struct {
 	AggregateFunc string `json:"aggregateFunc"`
 	AggregateCol  string `json:"aggregateCol"`
 }
+
+type ModelPerformanceRequest struct {
+	Model string `json:"model"`
+}
 type PredictMetricsResponse struct {
 	Message string `json:"message"`
 	Status  string `json:"status"`
+}
+
+type LLMInferenceResponse struct {
+	Data   LLMInfereceData `json:"data"`
+	Status string          `json:"status"`
+}
+
+type LLMInfereceData struct {
+	Explanation string `json:"explanation"`
+	Solution    any    `json:"solution"`
 }
 type AWSErrorEvent struct {
 	EventTime    time.Time `json:"eventTime"`

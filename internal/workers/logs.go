@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"logarda/internal/db"
+	"logarda/internal/handlers"
 	"logarda/internal/model"
 	"logarda/utils"
 	"sync"
@@ -40,8 +41,9 @@ func ErrorLogsWorker() {
 			continue
 		}
 
+
 		// make api call
-		errorExplanation = "error explained" // placeholder
+		errorExplanation = handlers.GetLLMInference(&errorEvent) // placeholder
 
 		// stream to websocket (online users)
 		mu.Lock() // get the msg channel mutually exclusive to prevent unsafe actions
@@ -74,3 +76,4 @@ func ErrorLogsWorker() {
 	}
 
 }
+

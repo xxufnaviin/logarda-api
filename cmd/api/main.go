@@ -31,6 +31,7 @@ func main() {
 	http.HandleFunc("/websocket", handlers.WebsocketHandler)
 
 	http.HandleFunc("/api/analytics/predict", handlers.PredictMetrics)
+	http.HandleFunc("/api/models/performance", handlers.GetModelPerformance)
 
 	fmt.Println("Logarda backend server started at http://localhost:8080")
 	http.ListenAndServe(":8080", nil)

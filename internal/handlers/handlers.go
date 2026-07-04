@@ -10,8 +10,9 @@ import (
 )
 
 func Init() {
-	// load secrets
+	// load secrets and variables
 	config.LoadSecrets()
+	config.LoadVariables()
 	// create postgresql connection pool
 	db.CreatePostgreSQLPool()
 	// create redis connection

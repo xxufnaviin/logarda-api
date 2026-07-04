@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"logarda/internal/config"
 	"logarda/internal/db"
 	"logarda/internal/model"
 	"net/http"
 	"net/url"
 )
 
-var analyticsAPI = "http://localhost:8000/api/"
 var predictionEndpoint = "analytics/predict"
 
 func GetMetrics(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +70,7 @@ func PredictMetrics(w http.ResponseWriter, r *http.Request) {
 	params.Add("username", request.Username)
 
 	// construct request url using endpoint name and request params
-	request_url := fmt.Sprintf("%s%s?%s", analyticsAPI, predictionEndpoint, params.Encode())
+	request_url := fmt.Sprintf("%s%s?%s", config.ANALYTICS_API, predictionEndpoint, params.Encode())
 
 	w.Header().Set("Content-Type", "application/json")
 
