@@ -87,9 +87,8 @@ func GetLLMInference(errorEvent *model.AWSErrorEvent) string {
 
 	// concat the explanation and solution together as a string
 	explanationBytes, _ := json.Marshal(response.Data)
-	fmt.Println(response.Data)
 	errorExplanation := string(explanationBytes)
 
-	fmt.Print(errorExplanation)
+	fmt.Printf("Error explained for %s\n", errorEvent.EventName)
 	return errorExplanation
 }

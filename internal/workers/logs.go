@@ -72,7 +72,7 @@ func ErrorLogsWorker() {
 			continue
 		}
 		fmt.Println("success")
-		time.Sleep(1000000000) // for simulation
+		time.Sleep(10000000000) // for simulation
 	}
 
 }
